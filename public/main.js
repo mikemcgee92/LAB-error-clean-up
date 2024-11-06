@@ -1,30 +1,6 @@
 import '../styles/main.scss'; // You have to import your styles for them to work. Comment in this line
-
-const students = [];
-const voldysArmy = []; // starts as an empty array
-
-const houses = [
-  {
-    house: 'gryffindor',
-    crest:
-      'https://static.wikia.nocookie.net/pottermore/images/1/16/Gryffindor_crest.png'
-  },
-  {
-    house: 'slytherin',
-    crest:
-      'https://static.wikia.nocookie.net/pottermore/images/4/45/Slytherin_Crest.png'
-  },
-  {
-    house: 'hufflepuff',
-    crest:
-      'https://static.wikia.nocookie.net/pottermore/images/5/5e/Hufflepuff_crest.png'
-  },
-  {
-    house: 'ravenclaw',
-    crest:
-      'https://static.wikia.nocookie.net/pottermore/images/4/4f/Ravenclaw_crest.png'
-  }
-];
+import houses from '../utils/sample_data/houses';
+import { students, voldysArmy } from '../utils/sample_data/students';
 
 // ********** HTML Components  ********** //
 // the basic HMTL structure of app
@@ -171,6 +147,37 @@ const events = () => {
     filterBtnRow(); // filter buttons
     studentAreas(); // students and voldy's army divs
   });
+  // target expel buttons to move to voldys army
+  document
+    .querySelector('#student-container')
+    .addEventListener('click', (e) => {
+      if (e.target.id.includes('expel')) {
+        const [, id] = e.target.id.split('--');
+        const index = students.findIndex((student) => student.id === Number(id));
+
+        // move from one array to another
+        voldysArmy.push(...students.splice(index, 1));
+        // get both sets of students on the DOM
+        studentsOnDom('#students', students);
+        studentsOnDom('#voldy', voldysArmy);
+      }
+    });
+
+  // target filter buttons on Dom
+  document
+    .querySelector('#filter-container')
+    .addEventListener('click', (e) => {
+      if (e.target.id.includes('filter')) {
+        const [, house] = e.target.id.split('--');
+
+        if (house === 'all') {
+          studentsOnDom('#students', students);
+        } else if (house) {
+          const filter = students.filter((student) => student.house === house);
+          studentsOnDom('#students', filter, house);
+        }
+      }
+    });
 };
 
 const startApp = () => {
@@ -181,33 +188,3 @@ const startApp = () => {
 };
 
 startApp();
-
-// target expel buttons to move to voldys army
-document
-  .querySelector('#student-container')
-  .addEventListener('click', (e) => {
-    if (e.target.id.includes('expel')) {
-      const [, id] = e.target.id.split('--');
-      const index = students.findIndex((student) => student.id === Number(id));
-
-      // move from one array to another
-      voldysArmy.push(...students.splice(index, 1));
-      // get both sets of students on the DOM
-      studentsOnDom('#students', students);
-      studentsOnDom('#voldy', voldysArmy);
-    }
-  });
-
-// target filter buttons on Dom
-document.querySelector('#filter-container').addEventListener('click', (e) => {
-  if (e.target.id.includes('filter')) {
-    const [, house] = e.target.id.split('--');
-
-    if (house === 'all') {
-      studentsOnDom('#students', students);
-    } else if (house) {
-      const filter = students.filter((student) => student.house === house);
-      studentsOnDom('#students', filter, house);
-    }
-  }
-});
